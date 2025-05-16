@@ -146,7 +146,7 @@ O objetivo principal é reduzir o tempo de espera em filas físicas, especialmen
 
 * **Adelson Guimarães** - [adelsontec](https://github.com/adelsontec)
 
-## 🙏 Agradecimentos (Opcional)
+## 🙏 Agradecimentos
 
 * Agradecimentos à Imersão IA da Alura + Google pela oportunidade e aprendizado.
 * *Adicione outros agradecimentos se desejar.*
