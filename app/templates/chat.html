@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recepção Inteligente</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; padding: 0; background-color: #f0f4f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        #chatbox { width: 90%; max-width: 600px; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; height: 80vh; max-height: 700px; }
+        h2 { text-align: center; color: #333; margin-top: 0; margin-bottom: 20px; }
+        #conversation { flex-grow: 1; overflow-y: auto; margin-bottom: 15px; padding-right: 10px; }
+        .message { padding: 10px 15px; margin-bottom: 10px; border-radius: 18px; line-height: 1.4; max-width: 80%; word-wrap: break-word; }
+        .user-message { background-color: #DCF8C6; text-align: right; margin-left: auto; }
+        .bot-message { background-color: #E9EBEB; text-align: left; margin-right: auto; }
+        #input-area { display: flex; border-top: 1px solid #eee; padding-top: 15px; }
+        #user-input { flex-grow: 1; padding: 12px; border: 1px solid #ccc; border-radius: 20px 0 0 20px; outline: none; }
+        #input-area button { padding: 12px 18px; border: none; background-color: #4CAF50; color: white; border-radius: 0 20px 20px 0; cursor: pointer; font-weight: bold; }
+        #input-area button:hover { background-color: #45a049; }
+        #file-upload-area, #confirmation-area, #category-selection-area { margin-top: 15px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 8px; background-color: #f9f9f9; display: none; }
+        #file-upload-area p, #confirmation-area p, #category-selection-area p { margin-top: 0; margin-bottom: 10px; font-weight: bold; color: #555;}
+        .category-button, #file-upload-area button, #confirmation-area button { background-color: #007bff; color: white; border: none; padding: 10px 15px; margin: 5px; border-radius: 5px; cursor: pointer; font-size: 0.9em; }
+        .category-button:hover, #file-upload-area button:hover, #confirmation-area button:hover { background-color: #0056b3; }
+        #loading { display: none; margin: 15px auto; text-align: center; color: #777; }
+        #loading p { margin: 0; }
+        #extracted-data-display div { margin-bottom: 5px; }
+        #extracted-data-display strong { color: #333; }
+        #reset-timer-message { font-size: 0.8em; color: #888; text-align: center; margin-top: 10px; display: none; }
+    </style>
+</head>
+<body>
+    <div id="chatbox">
+        <h2>Bem-vindo(a) ao Atendimento!</h2>
+        <div id="conversation">
+            {% if initial_message %}
+            <div class="message bot-message" id="initial-bot-msg">{{ initial_message }}</div>
+            {% endif %}
+        </div>
+
+        <div id="category-selection-area">
+            <p>Para qual tipo de atendimento você gostaria de gerar uma senha?</p>
+            <button class="category-button" onclick="selectCategory('Exame')">Exame</button>
+            <button class="category-button" onclick="selectCategory('Consulta')">Consulta</button>
+            <button class="category-button" onclick="selectCategory('Dentista')">Dentista</button>
+            <button class="category-button" onclick="selectCategory('Consulta Marcada')">Consulta Marcada</button>
+        </div>
+
+        <div id="file-upload-area">
+            <p>Por favor, envie uma foto do seu documento (RG, CPF ou Carteirinha do SUS):</p>
+            <input type="file" id="document-file" accept="image/*" style="margin-bottom: 10px;">
+            <button onclick="uploadDocument()">Enviar Documento</button>
+        </div>
+
+        <div id="confirmation-area">
+            <p>Os dados abaixo foram extraídos do seu documento. Estão corretos?</p>
+            <div id="extracted-data-display"></div>
+            <button onclick="proceedWithDataConfirmation()">Sim, estão corretos</button>
+            <button onclick="tellBotToCorrectData()">Não, preciso corrigir/digitar</button>
+        </div>
+
+        <div id="loading"><p>Processando...</p></div>
+        <div id="reset-timer-message">Esta tela será reiniciada em <span id="countdown">7</span> segundos...</div>
+
+        <div id="input-area">
+            <input type="text" id="user-input" placeholder="Digite sua mensagem..." disabled>
+            <button onclick="sendMessage()" id="send-button" disabled>Enviar</button>
+        </div>
+    </div>
+
+    <script>
+        const conversationDiv = document.getElementById('conversation');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const fileUploadArea = document.getElementById('file-upload-area');
+        const confirmationArea = document.getElementById('confirmation-area');
+        const extractedDataDisplay = document.getElementById('extracted-data-display');
+        const loadingDiv = document.getElementById('loading');
+        const categorySelectionArea = document.getElementById('category-selection-area');
+        const initialBotMsgDiv = document.getElementById('initial-bot-msg');
+        const resetTimerMessageDiv = document.getElementById('reset-timer-message');
+        const countdownSpan = document.getElementById('countdown');
+
+        let resetTimeoutId = null; // Para guardar o ID do timeout e poder cancelá-lo
+        let countdownIntervalId = null; // Para o contador regressivo visual
+
+        function addMessage(text, sender) {
+            // Cancela qualquer temporizador de reset pendente se o usuário interagir
+            clearAutoResetTimer();
+
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
+            if (sender === 'bot') {
+                messageDiv.innerHTML = text.replace(/\n/g, '<br>');
+            } else {
+                messageDiv.textContent = text;
+            }
+            conversationDiv.appendChild(messageDiv);
+            conversationDiv.scrollTop = conversationDiv.scrollHeight;
+        }
+
+        function showLoading(show) {
+            loadingDiv.style.display = show ? 'block' : 'none';
+        }
+
+        function toggleChatInput(enable) {
+            userInput.disabled = !enable;
+            sendButton.disabled = !enable;
+            if(enable){
+                userInput.focus();
+            }
+        }
+
+        function hideAllActionAreas() {
+            fileUploadArea.style.display = 'none';
+            confirmationArea.style.display = 'none';
+            categorySelectionArea.style.display = 'none';
+        }
+
+        function startAutoResetTimer(seconds = 7) {
+            clearAutoResetTimer(); // Limpa qualquer timer anterior
+            resetTimerMessageDiv.style.display = 'block';
+            let remainingSeconds = seconds;
+            countdownSpan.textContent = remainingSeconds;
+
+            countdownIntervalId = setInterval(() => {
+                remainingSeconds--;
+                countdownSpan.textContent = remainingSeconds;
+                if (remainingSeconds <= 0) {
+                    clearInterval(countdownIntervalId);
+                }
+            }, 1000);
+
+            resetTimeoutId = setTimeout(() => {
+                window.location.reload();
+            }, seconds * 1000);
+            console.log(`Timer de reset iniciado (${seconds} segundos).`);
+        }
+
+        function clearAutoResetTimer() {
+            if (resetTimeoutId) {
+                clearTimeout(resetTimeoutId);
+                resetTimeoutId = null;
+                console.log("Timer de reset cancelado.");
+            }
+            if (countdownIntervalId) {
+                clearInterval(countdownIntervalId);
+                countdownIntervalId = null;
+            }
+            resetTimerMessageDiv.style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (initialBotMsgDiv && initialBotMsgDiv.textContent.trim() !== "") {
+                addMessage("Para qual tipo de atendimento você gostaria de gerar uma senha? Por favor, escolha uma das opções abaixo.", "bot");
+                categorySelectionArea.style.display = 'block';
+                toggleChatInput(false);
+            }
+            // Qualquer clique ou digitação cancela o timer de reset
+            document.body.addEventListener('click', clearAutoResetTimer, true); // Captura na fase de bubbling
+            document.body.addEventListener('keypress', clearAutoResetTimer, true);
+        });
+
+        async function selectCategory(category) {
+            // addMessage é chamado primeiro, o que já cancela o timer
+            addMessage(`Eu escolhi: ${category}`, 'user');
+            hideAllActionAreas();
+            showLoading(true);
+            toggleChatInput(false);
+
+            try {
+                const response = await fetch('/send_message', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: category })
+                });
+                const data = await response.json();
+                showLoading(false);
+                addMessage(data.reply, 'bot');
+
+                if (data.action === 'request_document') {
+                    fileUploadArea.style.display = 'block';
+                } else if (data.action === 'ask_category' || data.action === 'ask_category_again') {
+                    categorySelectionArea.style.display = 'block';
+                } else {
+                    toggleChatInput(true);
+                }
+            } catch (error) {
+                showLoading(false);
+                addMessage("Erro ao selecionar categoria. Tente novamente.", 'bot');
+                console.error("Select category error:", error);
+                categorySelectionArea.style.display = 'block';
+                toggleChatInput(false);
+            }
+        }
+
+        async function sendMessage() {
+            const messageText = userInput.value.trim();
+            if (!messageText) return;
+
+            addMessage(messageText, 'user'); // Isso já chama clearAutoResetTimer()
+            userInput.value = '';
+            showLoading(true);
+            toggleChatInput(false);
+
+            try {
+                const response = await fetch('/send_message', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: messageText })
+                });
+                const data = await response.json();
+                showLoading(false);
+                addMessage(data.reply, 'bot');
+
+                hideAllActionAreas();
+                if (data.action === 'request_document') {
+                    fileUploadArea.style.display = 'block';
+                } else if (data.action === 'ask_category' || data.action === 'ask_category_again') {
+                    categorySelectionArea.style.display = 'block';
+                } else if (data.reply.includes("sua senha de atendimento é") || data.action === 'ticket_already_exists_today') {
+                    // Se a resposta contém a senha ou informa que já tem uma, inicia o timer
+                    startAutoResetTimer();
+                    toggleChatInput(true); // Habilita input para caso queiram dizer "obrigado"
+                }
+                 else {
+                    toggleChatInput(true);
+                }
+            } catch (error) {
+                showLoading(false);
+                addMessage("Erro ao conectar com o servidor. Tente novamente.", 'bot');
+                console.error("Send message error:", error);
+                toggleChatInput(true);
+            }
+        }
+
+        userInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter' && !userInput.disabled) {
+                sendMessage(); // sendMessage já chama addMessage que cancela o timer
+            }
+        });
+
+        async function uploadDocument() {
+            addMessage("Enviando documento...", "user"); // Cancela timer
+            const fileInput = document.getElementById('document-file');
+            // ... (resto da função uploadDocument como na v_ocr_empty_handling)
+            if (fileInput.files.length === 0) {
+                addMessage("Por favor, selecione um arquivo de imagem.", 'bot');
+                return;
+            }
+            const formData = new FormData();
+            formData.append('document', fileInput.files[0]);
+
+            showLoading(true);
+            hideAllActionAreas();
+
+            try {
+                const response = await fetch('/upload_document', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                showLoading(false);
+
+                addMessage(data.bot_reply || "Processando...", 'bot');
+
+                if (response.ok && data.action !== 'request_document_again') {
+                    const ocrData = data.extracted_data;
+                    let displayText = "";
+                    if (ocrData.nome) { displayText += `<div><strong>Nome:</strong> ${ocrData.nome}</div>`; }
+                    else { displayText += `<div><strong>Nome:</strong> Não encontrado</div>`; }
+                    if (ocrData.cpf) { displayText += `<div><strong>CPF:</strong> ${ocrData.cpf}</div>`; }
+                    else { displayText += `<div><strong>CPF:</strong> Não encontrado</div>`; }
+                    if (ocrData.rg) { displayText += `<div><strong>RG:</strong> ${ocrData.rg}</div>`; }
+                    else { displayText += `<div><strong>RG:</strong> Não encontrado</div>`; }
+                    if (ocrData.cns) { displayText += `<div><strong>CNS:</strong> ${ocrData.cns}</div>`; }
+
+                    extractedDataDisplay.innerHTML = displayText;
+                    confirmationArea.style.display = 'block';
+                } else if (data.action === 'request_document_again') {
+                    fileUploadArea.style.display = 'block';
+                    toggleChatInput(false);
+                } else {
+                    addMessage(data.error || "Erro ao processar documento.", 'bot');
+                    toggleChatInput(true);
+                }
+            } catch (error) {
+                showLoading(false);
+                addMessage("Erro ao enviar documento. Tente novamente.", 'bot');
+                toggleChatInput(true);
+                console.error("Upload error:", error);
+            }
+        }
+
+        async function proceedWithDataConfirmation() {
+            addMessage("Confirmando dados...", "user"); // Cancela timer
+            hideAllActionAreas();
+            showLoading(true);
+            toggleChatInput(false);
+
+            try {
+                const response = await fetch('/confirm_data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ confirmed: true })
+                });
+                const data = await response.json();
+                showLoading(false);
+                addMessage(data.bot_reply || `Seu acesso foi registrado! Sua senha é: ${data.senha}`, 'bot');
+
+                // Inicia o timer de reset após a confirmação e exibição da senha
+                startAutoResetTimer();
+
+            } catch (error) {
+                showLoading(false);
+                addMessage("Erro ao conectar para confirmar dados.", 'bot');
+                console.error("Confirm data error:", error);
+            }
+            toggleChatInput(true); // Habilita o input para o usuário poder dizer "obrigado", etc.
+        }
+
+        function tellBotToCorrectData() {
+            addMessage("Preciso corrigir os dados.", "user"); // Cancela timer
+            hideAllActionAreas();
+            toggleChatInput(true);
+            const userCorrectionRequest = "Os dados não estão corretos, preciso ajustá-los.";
+            // addMessage(userCorrectionRequest, 'user'); // Já adicionado acima
+            sendMessageInternal(userCorrectionRequest);
+        }
+
+        async function sendMessageInternal(messageText) {
+            // addMessage já foi chamado antes de chamar esta função, então o timer já foi cancelado
+            showLoading(true);
+            toggleChatInput(false);
+             try {
+                const response = await fetch('/send_message', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: messageText })
+                });
+                const data = await response.json();
+                showLoading(false);
+                addMessage(data.reply, 'bot');
+
+                if (data.action === 'request_document') {
+                    fileUploadArea.style.display = 'block';
+                } else if (data.action === 'ask_category' || data.action === 'ask_category_again') {
+                    categorySelectionArea.style.display = 'block';
+                } else {
+                    toggleChatInput(true);
+                }
+            } catch (error) {
+                showLoading(false);
+                addMessage("Erro ao conectar com o servidor. Tente novamente.", 'bot');
+                console.error("Send message internal error:", error);
+                toggleChatInput(true);
+            }
+        }
+    </script>
+</body>
+</html>
