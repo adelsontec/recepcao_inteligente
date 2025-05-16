@@ -1,0 +1,24 @@
+# Ambiente Virtual Python
+venv/
+/venv/
+*.py[cod]
+__pycache__/
+.Python
+
+# Arquivo de variáveis de ambiente (contém sua API Key!)
+.env
+*.env
+
+# Banco de dados SQLite (se não quiser versionar os dados, apenas o schema)
+*.db
+*.sqlite
+*.sqlite3
+credentials.db
+
+# Arquivos de upload do usuário (documentos)
+app/static/uploads/
+
+# Arquivos de IDE e OS
+.vscode/
+.idea/
+*.DS_Store
