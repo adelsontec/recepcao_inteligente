@@ -107,8 +107,8 @@ O objetivo principal é reduzir o tempo de espera em filas físicas, especialmen
 
 ## 🙏 Agradecimentos (Opcional)
 
-* Agradecimentos a [Nome da Instituição/Evento] pela oportunidade de desenvolver este projeto.
-* Agradecimentos a [Nome de Mentores/Colegas] pela ajuda e feedback.
+* Agradecimentos a Alura, Google pela oportunidade de desenvolver este projeto.
+* Agradecimentos a pessoal da comunidade pela ajuda e feedback.
 
 ---
 
