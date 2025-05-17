@@ -7,65 +7,106 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .table-fixed-layout {
-            table-layout: fixed;
-            width: 100%; /* Garante que a tabela use a largura total disponível */
-        }
+        body { font-family: 'Inter', sans-serif; }
+        .table-fixed-layout { table-layout: fixed; width: 100%; }
         .table-fixed-layout th, .table-fixed-layout td {
-            padding: 0.75rem; /* Equivalente a p-3 do Tailwind */
-            vertical-align: top;
-            border-bottom-width: 1px; /* Adiciona borda inferior */
-            /* Tailwind classes equivalentes: px-3 py-3 ou px-4 py-4 */
+            padding: 0.75rem 1rem;
+            vertical-align: middle;
+            border-bottom-width: 1px;
+            border-color: #e5e7eb;
         }
-        /* Ajuste de largura das colunas */
-        .col-senha { width: 15%; }
-        .col-nome { width: 30%; }
-        .col-cpf { width: 20%; }
-        .col-rg { width: 20%; }
-        .col-horario { width: 15%; }
+        .col-senha { width: 10%; }
+        .col-nome { width: 25%; }
+        .col-cpf { width: 15%; }
+        .col-rg { width: 13%; }
+        .col-nasc { width: 10%; }
+        .col-idade { width: 7%; text-align: center; }
+        .col-horario { width: 10%; text-align: center;}
+        .col-acoes { width: 10%; text-align: center; } /* Nova coluna Ações */
 
-        /* Para quebra de palavra em células longas */
-        .break-word {
-            word-wrap: break-word;
-            overflow-wrap: break-word;
+        .break-word { word-wrap: break-word; overflow-wrap: break-word; }
+        tbody tr:nth-child(odd) { background-color: #f9fafb; }
+        .flash-message {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.375rem; /* rounded-md */
+            font-weight: 500;
         }
+        .flash-success { background-color: #d1fae5; color: #065f46; } /* green-100, green-800 */
+        .flash-error { background-color: #fee2e2; color: #991b1b; }   /* red-100, red-800 */
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800 min-h-screen">
+<body class="bg-slate-100 text-slate-800 min-h-screen">
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
-        <header class="mb-8 text-center">
-            <h1 class="text-3xl sm:text-4xl font-bold text-blue-700">CuidarBot - Painel de Atendimento</h1>
-            <p class="text-lg text-gray-600 mt-2">Filas de atendimento para hoje: <span class="font-semibold">{{ hoje }}</span></p>
+        <header class="mb-6 text-center">
+            <h1 class="text-3xl sm:text-4xl font-bold text-slate-700">CuidarBot</h1>
+            <p class="text-xl text-indigo-600 font-medium mt-1">Painel de Atendimento</p>
+            <p class="text-md text-gray-500 mt-2">Dados para hoje: <span class="font-semibold text-slate-700">{{ hoje }}</span></p>
         </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category if category in ['success', 'error'] else 'info' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <section class="mb-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg flex flex-col justify-between">
+                <div>
+                    <h3 class="text-lg font-semibold">Total de Atendimentos Hoje</h3>
+                    <p class="text-5xl font-bold mt-2">{{ total_atendimentos_hoje }}</p>
+                </div>
+                <p class="text-sm opacity-75 mt-4">Número total de senhas emitidas.</p>
+            </div>
+            {% if contagem_por_categoria %}
+                {% for categoria, contagem in contagem_por_categoria.items() %}
+                    <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col justify-between border-l-4 border-indigo-500">
+                        <div>
+                            <h3 class="text-lg font-semibold text-indigo-700">{{ categoria.replace("_", " ") | title }}</h3>
+                            <p class="text-5xl font-bold text-slate-800 mt-2">{{ contagem }}</p>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-4">Senhas emitidas para esta categoria.</p>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </section>
 
         {% if filas_por_categoria %}
             {% for categoria, visitantes in filas_por_categoria.items() %}
-                <section class="mb-10 bg-white p-4 sm:p-6 rounded-xl shadow-lg">
-                    <h2 class="text-2xl font-semibold text-blue-600 mb-6 border-b border-gray-300 pb-3">{{ categoria.replace("_", " ") | title }}</h2>
+                <section class="mb-12 bg-white p-5 sm:p-8 rounded-xl shadow-xl">
+                    <h2 class="text-2xl font-semibold text-indigo-600 mb-6 border-b-2 border-indigo-200 pb-3">
+                        Fila: {{ categoria.replace("_", " ") | title }}
+                        <span class="text-lg font-normal text-gray-500">({{ visitantes | length }} pessoa(s))</span>
+                    </h2>
                     {% if visitantes %}
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full table-fixed-layout divide-y divide-gray-200 border border-gray-200">
-                                <thead class="bg-gray-100">
+                        <div class="overflow-x-auto rounded-lg border border-gray-200">
+                            <table class="min-w-full table-fixed-layout divide-y divide-gray-200">
+                                <thead class="bg-slate-200">
                                     <tr>
-                                        <th scope="col" class="col-senha text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Senha</th>
-                                        <th scope="col" class="col-nome text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Nome</th>
-                                        <th scope="col" class="col-cpf text-left text-xs font-medium text-gray-600 uppercase tracking-wider">CPF</th>
-                                        <th scope="col" class="col-rg text-left text-xs font-medium text-gray-600 uppercase tracking-wider">RG</th>
-                                        <th scope="col" class="col-horario text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Horário</th>
+                                        <th scope="col" class="col-senha text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Senha</th>
+                                        <th scope="col" class="col-nome text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Nome</th>
+                                        <th scope="col" class="col-cpf text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">CPF</th>
+                                        <th scope="col" class="col-rg text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">RG</th>
+                                        <th scope="col" class="col-nasc text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Nasc.</th>
+                                        <th scope="col" class="col-idade text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">Idade</th>
+                                        <th scope="col" class="col-horario text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Chegada</th>
+                                        <th scope="col" class="col-acoes text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     {% for visitante in visitantes %}
-                                        <tr class="hover:bg-gray-50">
-                                            <td class="whitespace-nowrap text-sm font-semibold text-blue-700 break-word">{{ visitante.senha_formatada }}</td>
-                                            <td class="text-sm text-gray-800 break-word">{{ visitante.nome or 'Não informado' }}</td>
-                                            <td class="text-sm text-gray-600 break-word">{{ visitante.cpf or 'Não informado' }}</td>
-                                            <td class="text-sm text-gray-600 break-word">{{ visitante.rg or 'Não informado' }}</td>
-                                            <td class="whitespace-nowrap text-sm text-gray-500 break-word">
-                                                {# Formata para HH:MM:SS se for um objeto datetime, ou mostra a string #}
+                                        <tr class="hover:bg-indigo-50">
+                                            <td class="whitespace-nowrap text-sm font-bold text-indigo-700 break-word">{{ visitante.senha_formatada }}</td>
+                                            <td class="text-sm text-slate-700 break-word">{{ visitante.nome or 'N/I' }}</td>
+                                            <td class="text-sm text-slate-600 break-word">{{ visitante.cpf or 'N/I' }}</td>
+                                            <td class="text-sm text-slate-600 break-word">{{ visitante.rg or 'N/I' }}</td>
+                                            <td class="text-sm text-slate-600 break-word">{{ visitante.data_nascimento or 'N/I' }}</td>
+                                            <td class="text-sm text-slate-600 break-word text-center">{{ visitante.idade if visitante.idade is not none else 'N/I' }}</td>
+                                            <td class="whitespace-nowrap text-sm text-slate-500 break-word text-center">
                                                 {% if visitante.horario_entrada is string %}
                                                     {{ visitante.horario_entrada.split('.')[0].split(' ')[1] if ' ' in visitante.horario_entrada else visitante.horario_entrada.split('.')[0] }}
                                                 {% elif visitante.horario_entrada %}
@@ -74,23 +115,27 @@
                                                     N/A
                                                 {% endif %}
                                             </td>
+                                            <td class="whitespace-nowrap text-sm text-slate-500 break-word text-center">
+                                                <form action="{{ url_for('main.admin_delete_visitor', visitor_id=visitante.id) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja apagar este registo?');">
+                                                    <button type="submit" class="text-red-600 hover:text-red-800 font-medium">Apagar</button>
+                                                </form>
+                                            </td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
                         </div>
                     {% else %}
-                        <p class="text-gray-500 italic py-4">Nenhum atendimento registrado para esta categoria hoje.</p>
+                        <p class="text-gray-500 italic py-4 text-center">Nenhum atendimento registrado para esta categoria hoje.</p>
                     {% endif %}
                 </section>
             {% endfor %}
         {% else %}
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center">
-                <p class="text-xl text-gray-500 py-10">Nenhum atendimento registrado para hoje.</p>
+             <div class="bg-white p-10 rounded-xl shadow-xl text-center">
+                <p class="text-xl text-gray-500">Nenhum atendimento registrado para hoje.</p>
             </div>
         {% endif %}
-
-        <footer class="mt-12 text-center text-sm text-gray-500">
+        <footer class="mt-16 text-center text-sm text-gray-500">
             <p>&copy; {{ hoje.split('/')[-1] }} CuidarBot.</p>
         </footer>
     </div>

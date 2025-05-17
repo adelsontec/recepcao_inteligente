@@ -85,7 +85,9 @@ O objetivo principal é reduzir o tempo de espera em filas físicas, especialmen
     ```bash
     flask run
     ```
-    Acesse em: `http://127.0.0.1:5000/`  
+<<<<<<< HEAD
+    Acesse em: `http://127.0.0.1:5000/`
+>>>>>>> abffe8d (Versão final do projeto CuidarBot para Imersão IA Alura+Google)
     Admin: `http://127.0.0.1:5000/admin_filas`
 
 ## 🔮 Possíveis Melhorias Futuras
@@ -124,6 +126,7 @@ O objetivo principal é reduzir o tempo de espera em filas físicas, especialmen
 
 ## 🙏 Agradecimentos
 
+<<<<<<< HEAD
 * Primeiramente, **agradeço a DEUS**, fonte de sabedoria, inspiração e propósito em tudo que construo.  
 * À minha **esposa**, que com sensibilidade e amor, compartilhou a ideia original que deu origem a este projeto.  
 * À **Imersão IA da Alura + Google**, pela oportunidade de aprendizado e desenvolvimento de soluções com impacto real.  
@@ -133,3 +136,12 @@ O objetivo principal é reduzir o tempo de espera em filas físicas, especialmen
 ---
 
 *Este README foi gerado para o projeto CuidarBot em 16 de Maio de 2025.*
+=======
+* Primeiramente, **agradeço a DEUS**, fonte de sabedoria, inspiração e propósito em tudo que construo.
+* À minha **esposa**, que com sensibilidade e amor, compartilhou a ideia original que deu origem a este projeto.
+* À **Imersão IA da Alura + Google**, pela oportunidade de aprendizado e desenvolvimento de soluções com impacto real.
+* À minha família, que me motiva todos os dias a usar a tecnologia para **cuidar de pessoas e transformar realidades com compaixão**.
+* A todos que acreditam que **a tecnologia pode ser uma ferramenta de serviço ao próximo, inclusão e dignidade**.
+
+---
+>>>>>>> abffe8d (Versão final do projeto CuidarBot para Imersão IA Alura+Google)

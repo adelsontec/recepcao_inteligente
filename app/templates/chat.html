@@ -3,70 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recepção Inteligente</title>
+    <title>Recepção Inteligente - CuidarBot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; margin: 0; padding: 0; background-color: #f0f4f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        #chatbox { width: 90%; max-width: 600px; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; height: 80vh; max-height: 700px; }
-        h2 { text-align: center; color: #333; margin-top: 0; margin-bottom: 20px; }
-        #conversation { flex-grow: 1; overflow-y: auto; margin-bottom: 15px; padding-right: 10px; }
-        .message { padding: 10px 15px; margin-bottom: 10px; border-radius: 18px; line-height: 1.4; max-width: 80%; word-wrap: break-word; }
-        .user-message { background-color: #DCF8C6; text-align: right; margin-left: auto; }
-        .bot-message { background-color: #E9EBEB; text-align: left; margin-right: auto; }
-        #input-area { display: flex; border-top: 1px solid #eee; padding-top: 15px; }
-        #user-input { flex-grow: 1; padding: 12px; border: 1px solid #ccc; border-radius: 20px 0 0 20px; outline: none; }
-        #input-area button { padding: 12px 18px; border: none; background-color: #4CAF50; color: white; border-radius: 0 20px 20px 0; cursor: pointer; font-weight: bold; }
-        #input-area button:hover { background-color: #45a049; }
-        #file-upload-area, #confirmation-area, #category-selection-area { margin-top: 15px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 8px; background-color: #f9f9f9; display: none; }
-        #file-upload-area p, #confirmation-area p, #category-selection-area p { margin-top: 0; margin-bottom: 10px; font-weight: bold; color: #555;}
-        .category-button, #file-upload-area button, #confirmation-area button { background-color: #007bff; color: white; border: none; padding: 10px 15px; margin: 5px; border-radius: 5px; cursor: pointer; font-size: 0.9em; }
-        .category-button:hover, #file-upload-area button:hover, #confirmation-area button:hover { background-color: #0056b3; }
-        #loading { display: none; margin: 15px auto; text-align: center; color: #777; }
-        #loading p { margin: 0; }
-        #extracted-data-display div { margin-bottom: 5px; }
-        #extracted-data-display strong { color: #333; }
+        body { font-family: 'Inter', sans-serif; overscroll-behavior-y: contain; }
+        #chatbox { display: flex; flex-direction: column; height: 90vh; max-height: 700px; }
+        #conversation { scrollbar-width: thin; scrollbar-color: #9ca3af #f3f4f6; }
+        #conversation::-webkit-scrollbar { width: 8px; }
+        #conversation::-webkit-scrollbar-track { background: #f3f4f6; border-radius: 10px; }
+        #conversation::-webkit-scrollbar-thumb { background-color: #9ca3af; border-radius: 10px; border: 2px solid #f3f4f6; }
+        .message { max-width: 85%; }
+        .user-message { background-color: #25D366; color: white; }
+        .bot-message { background-color: #E5E7EB; color: #1F2937; }
+        .category-button, #file-upload-area button, #confirmation-area button { transition: background-color 0.2s ease-in-out; }
+        #user-input::placeholder { color: #9ca3af; opacity: 1; }
         #reset-timer-message { font-size: 0.8em; color: #888; text-align: center; margin-top: 10px; display: none; }
     </style>
 </head>
-<body>
-    <div id="chatbox">
-        <h2>Bem-vindo(a) ao Atendimento!</h2>
-        <div id="conversation">
+<body class="bg-gradient-to-br from-blue-500 to-indigo-600 text-gray-800 flex justify-center items-center min-h-screen p-4">
+    <div id="chatbox" class="w-full max-w-lg bg-white p-5 sm:p-6 rounded-2xl shadow-2xl">
+        <header class="mb-4 text-center">
+            <h2 class="text-2xl sm:text-3xl font-bold text-indigo-600">CuidarBot</h2>
+            <p class="text-sm text-gray-500">Sua recepção inteligente</p>
+        </header>
+
+        <div id="conversation" class="flex-grow overflow-y-auto mb-4 p-1">
             {% if initial_message %}
-            <div class="message bot-message" id="initial-bot-msg">{{ initial_message }}</div>
+            <div class="message bot-message rounded-lg py-2 px-4 mb-3 clear-both float-left" id="initial-bot-msg">
+                {{ initial_message | replace('\n', '<br>') | safe }}
+            </div>
             {% endif %}
         </div>
 
-        <div id="category-selection-area">
-            <p>Para qual tipo de atendimento você gostaria de gerar uma senha?</p>
-            <button class="category-button" onclick="selectCategory('Exame')">Exame</button>
-            <button class="category-button" onclick="selectCategory('Consulta')">Consulta</button>
-            <button class="category-button" onclick="selectCategory('Dentista')">Dentista</button>
-            <button class="category-button" onclick="selectCategory('Consulta Marcada')">Consulta Marcada</button>
+        <div id="category-selection-area" class="my-3 p-3 border border-gray-200 rounded-lg bg-gray-50">
+            <p class="text-sm font-medium text-gray-700 mb-2">Para qual tipo de atendimento você gostaria de gerar uma senha?</p>
+            <div class="grid grid-cols-2 gap-2">
+                <button class="category-button bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-3 rounded-lg text-sm" onclick="selectCategory('Exame')">Exame</button>
+                <button class="category-button bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-3 rounded-lg text-sm" onclick="selectCategory('Consulta')">Consulta</button>
+                <button class="category-button bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-3 rounded-lg text-sm" onclick="selectCategory('Dentista')">Dentista</button>
+                <button class="category-button bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-3 rounded-lg text-sm" onclick="selectCategory('Consulta Marcada')">Consulta Marcada</button>
+            </div>
         </div>
 
-        <div id="file-upload-area">
-            <p>Por favor, envie uma foto do seu documento (RG, CPF ou Carteirinha do SUS):</p>
-            <input type="file" id="document-file" accept="image/*" style="margin-bottom: 10px;">
-            <button onclick="uploadDocument()">Enviar Documento</button>
+        <div id="file-upload-area" class="my-3 p-3 border border-gray-200 rounded-lg bg-gray-50" style="display: none;">
+            <p class="text-sm font-medium text-gray-700 mb-2">Por favor, envie uma foto do seu documento (RG, CPF ou Carteirinha do SUS):</p>
+            <input type="file" id="document-file" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-2">
+            <button class="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-3 rounded-lg text-sm" onclick="uploadDocument()">Enviar Documento</button>
         </div>
 
-        <div id="confirmation-area">
-            <p>Os dados abaixo foram extraídos do seu documento. Estão corretos?</p>
-            <div id="extracted-data-display"></div>
-            <button onclick="proceedWithDataConfirmation()">Sim, estão corretos</button>
-            <button onclick="tellBotToCorrectData()">Não, preciso corrigir/digitar</button>
+        <div id="confirmation-area" class="my-3 p-3 border border-gray-200 rounded-lg bg-gray-50" style="display: none;">
+            <p class="text-sm font-medium text-gray-700 mb-2">Os dados abaixo foram extraídos. Estão corretos?</p>
+            <div id="extracted-data-display" class="text-sm p-2 bg-gray-100 rounded mb-2"></div>
+            <div class="flex gap-2">
+                <button class="flex-1 bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-3 rounded-lg text-sm" onclick="proceedWithDataConfirmation()">Sim, estão corretos</button>
+                <button class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-3 rounded-lg text-sm" onclick="tellBotToCorrectData()">Não, preciso corrigir</button>
+            </div>
         </div>
 
-        <div id="loading"><p>Processando...</p></div>
-        <div id="reset-timer-message">Esta tela será reiniciada em <span id="countdown">7</span> segundos...</div>
+        <div id="loading" class="my-3 text-center" style="display: none;"><p class="text-sm text-gray-600">Processando...</p></div>
+        <div id="reset-timer-message" class="text-xs text-gray-500 text-center mt-2 mb-1" style="display: none;">Esta tela será reiniciada em <span id="countdown" class="font-semibold">30</span>s...</div>
 
-        <div id="input-area">
-            <input type="text" id="user-input" placeholder="Digite sua mensagem..." disabled>
-            <button onclick="sendMessage()" id="send-button" disabled>Enviar</button>
+        <div id="input-area" class="flex mt-auto pt-3 border-t border-gray-200">
+            <input type="text" id="user-input" placeholder="Digite sua mensagem..." class="flex-grow p-3 border border-gray-300 rounded-l-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm">
+            <button onclick="sendMessage()" id="send-button" class="p-3 border-none bg-indigo-600 hover:bg-indigo-700 text-white rounded-r-xl cursor-pointer font-semibold text-sm">Enviar</button>
         </div>
     </div>
 
     <script>
+        // --- Mantenha todo o seu JavaScript da versão chat_html_input_enabled ---
+        // A única alteração é na função tellBotToCorrectData()
         const conversationDiv = document.getElementById('conversation');
         const userInput = document.getElementById('user-input');
         const sendButton = document.getElementById('send-button');
@@ -79,21 +85,28 @@
         const resetTimerMessageDiv = document.getElementById('reset-timer-message');
         const countdownSpan = document.getElementById('countdown');
 
-        let resetTimeoutId = null; // Para guardar o ID do timeout e poder cancelá-lo
-        let countdownIntervalId = null; // Para o contador regressivo visual
+        let resetTimeoutId = null;
+        let countdownIntervalId = null;
 
         function addMessage(text, sender) {
-            // Cancela qualquer temporizador de reset pendente se o usuário interagir
             clearAutoResetTimer();
-
             const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
+            messageDiv.classList.add('message', 'py-2', 'px-4', 'mb-3', 'rounded-lg', 'clear-both');
+            if (sender === 'user') {
+                messageDiv.classList.add('user-message', 'float-right', 'ml-auto');
+            } else {
+                messageDiv.classList.add('bot-message', 'float-left', 'mr-auto');
+            }
+
             if (sender === 'bot') {
                 messageDiv.innerHTML = text.replace(/\n/g, '<br>');
             } else {
                 messageDiv.textContent = text;
             }
             conversationDiv.appendChild(messageDiv);
+            const clearer = document.createElement('div');
+            clearer.style.clear = 'both';
+            conversationDiv.appendChild(clearer);
             conversationDiv.scrollTop = conversationDiv.scrollHeight;
         }
 
@@ -115,8 +128,8 @@
             categorySelectionArea.style.display = 'none';
         }
 
-        function startAutoResetTimer(seconds = 7) {
-            clearAutoResetTimer(); // Limpa qualquer timer anterior
+        function startAutoResetTimer(seconds = 30) {
+            clearAutoResetTimer();
             resetTimerMessageDiv.style.display = 'block';
             let remainingSeconds = seconds;
             countdownSpan.textContent = remainingSeconds;
@@ -149,18 +162,15 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            toggleChatInput(true);
             if (initialBotMsgDiv && initialBotMsgDiv.textContent.trim() !== "") {
-                addMessage("Para qual tipo de atendimento você gostaria de gerar uma senha? Por favor, escolha uma das opções abaixo.", "bot");
                 categorySelectionArea.style.display = 'block';
-                toggleChatInput(false);
             }
-            // Qualquer clique ou digitação cancela o timer de reset
-            document.body.addEventListener('click', clearAutoResetTimer, true); // Captura na fase de bubbling
+            document.body.addEventListener('click', clearAutoResetTimer, true);
             document.body.addEventListener('keypress', clearAutoResetTimer, true);
         });
 
         async function selectCategory(category) {
-            // addMessage é chamado primeiro, o que já cancela o timer
             addMessage(`Eu escolhi: ${category}`, 'user');
             hideAllActionAreas();
             showLoading(true);
@@ -180,6 +190,7 @@
                     fileUploadArea.style.display = 'block';
                 } else if (data.action === 'ask_category' || data.action === 'ask_category_again') {
                     categorySelectionArea.style.display = 'block';
+                    toggleChatInput(false);
                 } else {
                     toggleChatInput(true);
                 }
@@ -196,10 +207,12 @@
             const messageText = userInput.value.trim();
             if (!messageText) return;
 
-            addMessage(messageText, 'user'); // Isso já chama clearAutoResetTimer()
+            addMessage(messageText, 'user');
             userInput.value = '';
             showLoading(true);
             toggleChatInput(false);
+            // Não esconde categorySelectionArea aqui, deixa o backend controlar via 'action'
+            // hideAllActionAreas();
 
             try {
                 const response = await fetch('/send_message', {
@@ -211,17 +224,16 @@
                 showLoading(false);
                 addMessage(data.reply, 'bot');
 
+                // Esconde áreas de ação APÓS receber a resposta do bot
                 hideAllActionAreas();
                 if (data.action === 'request_document') {
                     fileUploadArea.style.display = 'block';
                 } else if (data.action === 'ask_category' || data.action === 'ask_category_again') {
                     categorySelectionArea.style.display = 'block';
-                } else if (data.reply.includes("sua senha de atendimento é") || data.action === 'ticket_already_exists_today') {
-                    // Se a resposta contém a senha ou informa que já tem uma, inicia o timer
+                } else if (data.reply.includes("sua senha de atendimento é") || data.action === 'ticket_already_exists_today' || data.reply.toLowerCase().includes("já possui uma senha")) {
                     startAutoResetTimer();
-                    toggleChatInput(true); // Habilita input para caso queiram dizer "obrigado"
-                }
-                 else {
+                    toggleChatInput(true);
+                } else {
                     toggleChatInput(true);
                 }
             } catch (error) {
@@ -234,16 +246,17 @@
 
         userInput.addEventListener('keypress', function(event) {
             if (event.key === 'Enter' && !userInput.disabled) {
-                sendMessage(); // sendMessage já chama addMessage que cancela o timer
+                sendMessage();
             }
         });
 
         async function uploadDocument() {
-            addMessage("Enviando documento...", "user"); // Cancela timer
+            addMessage("Enviando documento...", "user");
             const fileInput = document.getElementById('document-file');
-            // ... (resto da função uploadDocument como na v_ocr_empty_handling)
             if (fileInput.files.length === 0) {
                 addMessage("Por favor, selecione um arquivo de imagem.", 'bot');
+                toggleChatInput(true);
+                fileUploadArea.style.display = 'block';
                 return;
             }
             const formData = new FormData();
@@ -272,6 +285,8 @@
                     if (ocrData.rg) { displayText += `<div><strong>RG:</strong> ${ocrData.rg}</div>`; }
                     else { displayText += `<div><strong>RG:</strong> Não encontrado</div>`; }
                     if (ocrData.cns) { displayText += `<div><strong>CNS:</strong> ${ocrData.cns}</div>`; }
+                    if (ocrData.data_nascimento) { displayText += `<div><strong>Nascimento:</strong> ${ocrData.data_nascimento}</div>`; }
+                    if (ocrData.idade !== null && ocrData.idade !== undefined) { displayText += `<div><strong>Idade:</strong> ${ocrData.idade}</div>`; }
 
                     extractedDataDisplay.innerHTML = displayText;
                     confirmationArea.style.display = 'block';
@@ -291,22 +306,23 @@
         }
 
         async function proceedWithDataConfirmation() {
-            addMessage("Confirmando dados...", "user"); // Cancela timer
+            addMessage("Sim, os dados estão corretos.", "user"); // Mensagem do usuário
             hideAllActionAreas();
             showLoading(true);
             toggleChatInput(false);
 
             try {
+                // A rota /confirm_data não precisa de um body se os dados já estão na sessão
+                // e não há correção manual pelo usuário nesta etapa.
                 const response = await fetch('/confirm_data', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ confirmed: true })
+                    headers: { 'Content-Type': 'application/json' }
+                    // body: JSON.stringify({ confirmed: true }) // Não é estritamente necessário se o backend não usa
                 });
                 const data = await response.json();
                 showLoading(false);
                 addMessage(data.bot_reply || `Seu acesso foi registrado! Sua senha é: ${data.senha}`, 'bot');
 
-                // Inicia o timer de reset após a confirmação e exibição da senha
                 startAutoResetTimer();
 
             } catch (error) {
@@ -314,20 +330,18 @@
                 addMessage("Erro ao conectar para confirmar dados.", 'bot');
                 console.error("Confirm data error:", error);
             }
-            toggleChatInput(true); // Habilita o input para o usuário poder dizer "obrigado", etc.
+            toggleChatInput(true);
         }
 
         function tellBotToCorrectData() {
-            addMessage("Preciso corrigir os dados.", "user"); // Cancela timer
+            addMessage("Não, preciso corrigir os dados.", "user"); // Mensagem do usuário
             hideAllActionAreas();
-            toggleChatInput(true);
-            const userCorrectionRequest = "Os dados não estão corretos, preciso ajustá-los.";
-            // addMessage(userCorrectionRequest, 'user'); // Já adicionado acima
-            sendMessageInternal(userCorrectionRequest);
+            // Envia uma mensagem para o backend indicando que precisa corrigir
+            // O backend (rota /send_message) vai chamar o Gemini para guiar a correção ou pedir nova foto.
+            sendMessageInternal("Os dados não estão corretos, preciso de ajuda para corrigi-los.");
         }
 
         async function sendMessageInternal(messageText) {
-            // addMessage já foi chamado antes de chamar esta função, então o timer já foi cancelado
             showLoading(true);
             toggleChatInput(false);
              try {
@@ -340,10 +354,13 @@
                 showLoading(false);
                 addMessage(data.reply, 'bot');
 
-                if (data.action === 'request_document') {
+                hideAllActionAreas(); // Esconde áreas após a resposta do bot
+                if (data.action === 'request_document' || data.action === 'request_document_again') {
                     fileUploadArea.style.display = 'block';
+                    toggleChatInput(false);
                 } else if (data.action === 'ask_category' || data.action === 'ask_category_again') {
                     categorySelectionArea.style.display = 'block';
+                    toggleChatInput(false);
                 } else {
                     toggleChatInput(true);
                 }
