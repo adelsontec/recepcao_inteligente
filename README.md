@@ -97,7 +97,6 @@ O objetivo principal é reduzir o tempo de espera em filas físicas e fornecer �
     Acesse a aplicação em `http://127.0.0.1:5000` no seu navegador.
 
 ## 🔮 Possíveis Melhorias Futuras
-_(Esta seção já está excelente, apenas pequenas sugestões de formatação ou detalhe)_
 
 ### 🧠 Inteligência Artificial
 * **Triagem Otimizada**: Implementar uma triagem mais inteligente baseada em sintomas básicos ou urgência, utilizando a IA para classificar prioridades (com supervisão humana).
@@ -129,7 +128,7 @@ _(Esta seção já está excelente, apenas pequenas sugestões de formatação o
 
 ## 👨‍💻 Autor
 
-**Adelson Guimarães** — [GitHub/adelsontec](https://github.com/adelsontec)
+**Adelson Guimarães** — [GitHub/adelsontec](https://github.com/adelsontec) + Gemini
 
 ## 🙏 Agradecimentos
 
