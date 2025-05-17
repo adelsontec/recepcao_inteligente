@@ -8,8 +8,6 @@
 ![Execução](https://img.shields.io/badge/Executado_em-Google%20Colab-orange?style=for-the-badge&logo=googlecolab)
 ![Framework](https://img.shields.io/badge/Framework-Flask-darkgreen?style=for-the-badge&logo=flask)
 ![Projeto](https://img.shields.io/badge/Projeto-CuidarBot-43b581?style=for-the-badge&logo=leaflet&logoColor=white)
-![Marca](https://img.shields.io/badge/Organização-Sempre%20Perto-blueviolet?style=for-the-badge&logo=github)
-![Assistente](https://img.shields.io/badge/Assistente-Soneh-ff69b4?style=for-the-badge&logo=voiceover&logoColor=white)
 
 
 
