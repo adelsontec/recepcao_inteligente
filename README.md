@@ -6,8 +6,6 @@
 ![IA](https://img.shields.io/badge/IA-Gemini-blue?style=for-the-badge&logo=google)
 ![Linguagem](https://img.shields.io/badge/Python-3.x-yellow?style=for-the-badge&logo=python)
 ![Execução](https://img.shields.io/badge/Executado_em-Google%20Colab-orange?style=for-the-badge&logo=googlecolab)
-![Framework](https://img.shields.io/badge/Framework-Flask-darkgreen?style=for-the-badge&logo=flask)
-![Projeto](https://img.shields.io/badge/Projeto-CuidarBot-43b581?style=for-the-badge&logo=leaflet&logoColor=white)
 
 
 
