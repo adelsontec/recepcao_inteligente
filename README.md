@@ -1,5 +1,18 @@
 # CuidarBot - Recepção Inteligente para Postos de Saúde
 
+
+
+![Projeto](https://img.shields.io/badge/Projeto-CuidarBot-green?style=for-the-badge&logo=leaflet)
+![IA](https://img.shields.io/badge/IA-Gemini-blue?style=for-the-badge&logo=google)
+![Linguagem](https://img.shields.io/badge/Python-3.x-yellow?style=for-the-badge&logo=python)
+![Execução](https://img.shields.io/badge/Executado_em-Google%20Colab-orange?style=for-the-badge&logo=googlecolab)
+![Framework](https://img.shields.io/badge/Framework-Flask-darkgreen?style=for-the-badge&logo=flask)
+![Projeto](https://img.shields.io/badge/Projeto-CuidarBot-43b581?style=for-the-badge&logo=leaflet&logoColor=white)
+![Marca](https://img.shields.io/badge/Organização-Sempre%20Perto-blueviolet?style=for-the-badge&logo=github)
+![Assistente](https://img.shields.io/badge/Assistente-Soneh-ff69b4?style=for-the-badge&logo=voiceover&logoColor=white)
+
+
+
 ## 📝 Descrição do Projeto
 
 O **CuidarBot** é um sistema de recepção inteligente projetado para otimizar e humanizar o atendimento inicial em postos de saúde. Utiliza um chatbot conversacional para interagir com os pacientes, recolher informações de documentos por OCR (Reconhecimento Ótico de Caracteres) e gerar senhas de atendimento sequenciais e categorizadas, reiniciadas diariamente.
