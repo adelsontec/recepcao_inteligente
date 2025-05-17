@@ -134,8 +134,8 @@ O objetivo principal é reduzir o tempo de espera em filas físicas e fornecer �
 
 * Primeiramente, **agradeço a DEUS**, fonte de sabedoria, inspiração e propósito em tudo que construo.
 * À minha **esposa**, que com sensibilidade e amor, compartilhou a ideia original que deu origem a este projeto.
-* À **Imersão IA da Alura + Google**, pela oportunidade de aprendizado e desenvolvimento de soluções com impacto real na comunidade.
 * À minha família, que me motiva todos os dias a usar a tecnologia para **cuidar de pessoas e transformar realidades com compaixão**.
+* À **Imersão IA da Alura + Google**, pela oportunidade de aprendizado e desenvolvimento de soluções com impacto real na comunidade.
 * A todos que acreditam que **a tecnologia pode ser uma ferramenta de serviço ao próximo, inclusão e dignidade**.
 
 ---
