@@ -128,7 +128,7 @@ O objetivo principal é reduzir o tempo de espera em filas físicas e fornecer �
 
 ## 👨‍💻 Autor
 
-**Adelson Guimarães** — [GitHub/adelsontec](https://github.com/adelsontec) + Gemini
+**Adelson Guimarães** — [GitHub/adelsontec](https://github.com/adelsontec) + **Gemini**
 
 ## 🙏 Agradecimentos
 
