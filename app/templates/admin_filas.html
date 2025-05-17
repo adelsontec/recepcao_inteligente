@@ -15,30 +15,24 @@
             border-bottom-width: 1px;
             border-color: #e5e7eb;
         }
-        .col-senha { width: 10%; }
-        .col-nome { width: 25%; }
-        .col-cpf { width: 15%; }
-        .col-rg { width: 13%; }
-        .col-nasc { width: 10%; }
-        .col-idade { width: 7%; text-align: center; }
+        .col-senha { width: 15%; }
+        .col-nome { width: 30%; }
+        .col-cpf { width: 20%; }
+        .col-nasc { width: 15%; }
+        .col-idade { width: 10%; text-align: center; }
         .col-horario { width: 10%; text-align: center;}
-        .col-acoes { width: 10%; text-align: center; } /* Nova coluna Ações */
+        .col-acoes { width: 10%; text-align: center; }
 
         .break-word { word-wrap: break-word; overflow-wrap: break-word; }
         tbody tr:nth-child(odd) { background-color: #f9fafb; }
-        .flash-message {
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: 0.375rem; /* rounded-md */
-            font-weight: 500;
-        }
-        .flash-success { background-color: #d1fae5; color: #065f46; } /* green-100, green-800 */
-        .flash-error { background-color: #fee2e2; color: #991b1b; }   /* red-100, red-800 */
+        .flash-message { padding: 1rem; margin-bottom: 1rem; border-radius: 0.375rem; font-weight: 500; }
+        .flash-success { background-color: #d1fae5; color: #065f46; }
+        .flash-error { background-color: #fee2e2; color: #991b1b; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen">
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
-        <header class="mb-6 text-center">
+        <header class="mb-10 text-center">
             <h1 class="text-3xl sm:text-4xl font-bold text-slate-700">CuidarBot</h1>
             <p class="text-xl text-indigo-600 font-medium mt-1">Painel de Atendimento</p>
             <p class="text-md text-gray-500 mt-2">Dados para hoje: <span class="font-semibold text-slate-700">{{ hoje }}</span></p>
@@ -55,21 +49,15 @@
         {% endwith %}
 
         <section class="mb-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg flex flex-col justify-between">
-                <div>
-                    <h3 class="text-lg font-semibold">Total de Atendimentos Hoje</h3>
-                    <p class="text-5xl font-bold mt-2">{{ total_atendimentos_hoje }}</p>
-                </div>
-                <p class="text-sm opacity-75 mt-4">Número total de senhas emitidas.</p>
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg">
+                <h3 class="text-lg font-semibold">Total de Atendimentos Hoje</h3>
+                <p class="text-5xl font-bold mt-2">{{ total_atendimentos_hoje }}</p>
             </div>
             {% if contagem_por_categoria %}
                 {% for categoria, contagem in contagem_por_categoria.items() %}
-                    <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col justify-between border-l-4 border-indigo-500">
-                        <div>
-                            <h3 class="text-lg font-semibold text-indigo-700">{{ categoria.replace("_", " ") | title }}</h3>
-                            <p class="text-5xl font-bold text-slate-800 mt-2">{{ contagem }}</p>
-                        </div>
-                        <p class="text-sm text-gray-500 mt-4">Senhas emitidas para esta categoria.</p>
+                    <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-indigo-500">
+                        <h3 class="text-lg font-semibold text-indigo-700">{{ categoria.replace("_", " ") | title }}</h3>
+                        <p class="text-5xl font-bold text-slate-800 mt-2">{{ contagem }}</p>
                     </div>
                 {% endfor %}
             {% endif %}
@@ -90,7 +78,6 @@
                                         <th scope="col" class="col-senha text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Senha</th>
                                         <th scope="col" class="col-nome text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Nome</th>
                                         <th scope="col" class="col-cpf text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">CPF</th>
-                                        <th scope="col" class="col-rg text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">RG</th>
                                         <th scope="col" class="col-nasc text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Nasc.</th>
                                         <th scope="col" class="col-idade text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">Idade</th>
                                         <th scope="col" class="col-horario text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Chegada</th>
@@ -103,7 +90,6 @@
                                             <td class="whitespace-nowrap text-sm font-bold text-indigo-700 break-word">{{ visitante.senha_formatada }}</td>
                                             <td class="text-sm text-slate-700 break-word">{{ visitante.nome or 'N/I' }}</td>
                                             <td class="text-sm text-slate-600 break-word">{{ visitante.cpf or 'N/I' }}</td>
-                                            <td class="text-sm text-slate-600 break-word">{{ visitante.rg or 'N/I' }}</td>
                                             <td class="text-sm text-slate-600 break-word">{{ visitante.data_nascimento or 'N/I' }}</td>
                                             <td class="text-sm text-slate-600 break-word text-center">{{ visitante.idade if visitante.idade is not none else 'N/I' }}</td>
                                             <td class="whitespace-nowrap text-sm text-slate-500 break-word text-center">
@@ -111,9 +97,7 @@
                                                     {{ visitante.horario_entrada.split('.')[0].split(' ')[1] if ' ' in visitante.horario_entrada else visitante.horario_entrada.split('.')[0] }}
                                                 {% elif visitante.horario_entrada %}
                                                     {{ visitante.horario_entrada.strftime('%H:%M:%S') }}
-                                                {% else %}
-                                                    N/A
-                                                {% endif %}
+                                                {% else %} N/A {% endif %}
                                             </td>
                                             <td class="whitespace-nowrap text-sm text-slate-500 break-word text-center">
                                                 <form action="{{ url_for('main.admin_delete_visitor', visitor_id=visitante.id) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja apagar este registo?');">

@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* ... (Mantenha seu CSS como na versão chat_html_simplified_final) ... */
         body { font-family: 'Inter', sans-serif; overscroll-behavior-y: contain; }
         #chatbox { display: flex; flex-direction: column; height: 90vh; max-height: 700px; }
         #conversation { scrollbar-width: thin; scrollbar-color: #9ca3af #f3f4f6; }
@@ -19,6 +20,11 @@
         .category-button, #file-upload-area button, #confirmation-area button { transition: background-color 0.2s ease-in-out; }
         #user-input::placeholder { color: #9ca3af; opacity: 1; }
         #reset-timer-message { font-size: 0.8em; color: #888; text-align: center; margin-top: 10px; display: none; }
+        .qr-code-container { text-align: center; margin-top: 15px; }
+        .qr-code-container img { max-width: 150px; margin: 5px auto; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .qr-code-container p { font-size: 0.85em; color: #4b5563; margin-bottom: 5px;}
+        #extracted-data-display div { margin-bottom: 5px; }
+        #extracted-data-display strong { color: #333; }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-500 to-indigo-600 text-gray-800 flex justify-center items-center min-h-screen p-4">
@@ -53,16 +59,16 @@
         </div>
 
         <div id="confirmation-area" class="my-3 p-3 border border-gray-200 rounded-lg bg-gray-50" style="display: none;">
-            <p class="text-sm font-medium text-gray-700 mb-2">Os dados abaixo foram extraídos. Estão corretos?</p>
+            <p class="text-sm font-medium text-gray-700 mb-2">Os dados abaixo foram extraídos ou fornecidos. Estão corretos?</p>
             <div id="extracted-data-display" class="text-sm p-2 bg-gray-100 rounded mb-2"></div>
             <div class="flex gap-2">
                 <button class="flex-1 bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-3 rounded-lg text-sm" onclick="proceedWithDataConfirmation()">Sim, estão corretos</button>
-                <button class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-3 rounded-lg text-sm" onclick="tellBotToCorrectData()">Não, preciso corrigir</button>
+                <button class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-3 rounded-lg text-sm" onclick="tellBotToCorrectData()">Não, preciso corrigir/digitar</button>
             </div>
         </div>
 
         <div id="loading" class="my-3 text-center" style="display: none;"><p class="text-sm text-gray-600">Processando...</p></div>
-        <div id="reset-timer-message" class="text-xs text-gray-500 text-center mt-2 mb-1" style="display: none;">Esta tela será reiniciada em <span id="countdown" class="font-semibold">30</span>s...</div>
+        <div id="reset-timer-message" class="text-xs text-gray-500 text-center mt-2 mb-1" style="display: none;">Esta tela será reiniciada em <span id="countdown">10</span>s...</div>
 
         <div id="input-area" class="flex mt-auto pt-3 border-t border-gray-200">
             <input type="text" id="user-input" placeholder="Digite sua mensagem..." class="flex-grow p-3 border border-gray-300 rounded-l-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm">
@@ -71,10 +77,14 @@
     </div>
 
     <script>
-        // --- Mantenha todo o seu JavaScript da versão chat_html_input_enabled ---
-        // A única alteração é na função tellBotToCorrectData()
+        // --- Mantenha o JavaScript da versão chat_html_simplified_final ---
+        // Principais alterações:
+        // - A função sendMessage e uploadDocument precisam de lidar com as novas 'action' do backend
+        //   para o fluxo de input manual (manual_input_start, display_manual_confirmation, proceed_to_confirm_data_route).
+        // - A função tellBotToCorrectData agora envia "corrigir" para o backend.
         const conversationDiv = document.getElementById('conversation');
         const userInput = document.getElementById('user-input');
+        // ... (resto das suas constantes como antes) ...
         const sendButton = document.getElementById('send-button');
         const fileUploadArea = document.getElementById('file-upload-area');
         const confirmationArea = document.getElementById('confirmation-area');
@@ -88,78 +98,13 @@
         let resetTimeoutId = null;
         let countdownIntervalId = null;
 
-        function addMessage(text, sender) {
-            clearAutoResetTimer();
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message', 'py-2', 'px-4', 'mb-3', 'rounded-lg', 'clear-both');
-            if (sender === 'user') {
-                messageDiv.classList.add('user-message', 'float-right', 'ml-auto');
-            } else {
-                messageDiv.classList.add('bot-message', 'float-left', 'mr-auto');
-            }
-
-            if (sender === 'bot') {
-                messageDiv.innerHTML = text.replace(/\n/g, '<br>');
-            } else {
-                messageDiv.textContent = text;
-            }
-            conversationDiv.appendChild(messageDiv);
-            const clearer = document.createElement('div');
-            clearer.style.clear = 'both';
-            conversationDiv.appendChild(clearer);
-            conversationDiv.scrollTop = conversationDiv.scrollHeight;
-        }
-
-        function showLoading(show) {
-            loadingDiv.style.display = show ? 'block' : 'none';
-        }
-
-        function toggleChatInput(enable) {
-            userInput.disabled = !enable;
-            sendButton.disabled = !enable;
-            if(enable){
-                userInput.focus();
-            }
-        }
-
-        function hideAllActionAreas() {
-            fileUploadArea.style.display = 'none';
-            confirmationArea.style.display = 'none';
-            categorySelectionArea.style.display = 'none';
-        }
-
-        function startAutoResetTimer(seconds = 30) {
-            clearAutoResetTimer();
-            resetTimerMessageDiv.style.display = 'block';
-            let remainingSeconds = seconds;
-            countdownSpan.textContent = remainingSeconds;
-
-            countdownIntervalId = setInterval(() => {
-                remainingSeconds--;
-                countdownSpan.textContent = remainingSeconds;
-                if (remainingSeconds <= 0) {
-                    clearInterval(countdownIntervalId);
-                }
-            }, 1000);
-
-            resetTimeoutId = setTimeout(() => {
-                window.location.reload();
-            }, seconds * 1000);
-            console.log(`Timer de reset iniciado (${seconds} segundos).`);
-        }
-
-        function clearAutoResetTimer() {
-            if (resetTimeoutId) {
-                clearTimeout(resetTimeoutId);
-                resetTimeoutId = null;
-                console.log("Timer de reset cancelado.");
-            }
-            if (countdownIntervalId) {
-                clearInterval(countdownIntervalId);
-                countdownIntervalId = null;
-            }
-            resetTimerMessageDiv.style.display = 'none';
-        }
+        function addMessage(text, sender) { /* ... como antes ... */ clearAutoResetTimer(); const messageDiv = document.createElement('div'); messageDiv.classList.add('message', 'py-2', 'px-4', 'mb-3', 'rounded-lg', 'clear-both'); if (sender === 'user') { messageDiv.classList.add('user-message', 'float-right', 'ml-auto'); } else { messageDiv.classList.add('bot-message', 'float-left', 'mr-auto'); } if (sender === 'bot') { messageDiv.innerHTML = text.replace(/\n/g, '<br>'); } else { messageDiv.textContent = text; } conversationDiv.appendChild(messageDiv); const clearer = document.createElement('div'); clearer.style.clear = 'both'; conversationDiv.appendChild(clearer); conversationDiv.scrollTop = conversationDiv.scrollHeight; }
+        function showLoading(show) { /* ... como antes ... */ loadingDiv.style.display = show ? 'block' : 'none';}
+        function toggleChatInput(enable) { /* ... como antes ... */ userInput.disabled = !enable; sendButton.disabled = !enable; if(enable){ userInput.focus(); }}
+        function hideAllActionAreas() { /* ... como antes ... */ fileUploadArea.style.display = 'none'; confirmationArea.style.display = 'none'; categorySelectionArea.style.display = 'none'; }
+        function startAutoResetTimer(seconds = 10) { /* ... como antes ... */ clearAutoResetTimer(); resetTimerMessageDiv.style.display = 'block'; let remainingSeconds = seconds; countdownSpan.textContent = remainingSeconds; countdownIntervalId = setInterval(() => { remainingSeconds--; countdownSpan.textContent = remainingSeconds; if (remainingSeconds <= 0) { clearInterval(countdownIntervalId); } }, 1000); resetTimeoutId = setTimeout(() => { window.location.reload(); }, seconds * 1000); }
+        function clearAutoResetTimer() { /* ... como antes ... */ if (resetTimeoutId) { clearTimeout(resetTimeoutId); resetTimeoutId = null; } if (countdownIntervalId) { clearInterval(countdownIntervalId); countdownIntervalId = null; } resetTimerMessageDiv.style.display = 'none'; }
+        function displayQrCode(qrUrl) { /* ... como antes ... */ }
 
         document.addEventListener('DOMContentLoaded', () => {
             toggleChatInput(true);
@@ -170,206 +115,129 @@
             document.body.addEventListener('keypress', clearAutoResetTimer, true);
         });
 
-        async function selectCategory(category) {
-            addMessage(`Eu escolhi: ${category}`, 'user');
-            hideAllActionAreas();
-            showLoading(true);
-            toggleChatInput(false);
-
-            try {
-                const response = await fetch('/send_message', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: category })
-                });
-                const data = await response.json();
-                showLoading(false);
-                addMessage(data.reply, 'bot');
-
-                if (data.action === 'request_document') {
-                    fileUploadArea.style.display = 'block';
-                } else if (data.action === 'ask_category' || data.action === 'ask_category_again') {
-                    categorySelectionArea.style.display = 'block';
-                    toggleChatInput(false);
-                } else {
-                    toggleChatInput(true);
-                }
-            } catch (error) {
-                showLoading(false);
-                addMessage("Erro ao selecionar categoria. Tente novamente.", 'bot');
-                console.error("Select category error:", error);
-                categorySelectionArea.style.display = 'block';
-                toggleChatInput(false);
-            }
-        }
+        async function selectCategory(category) { /* ... como antes ... */ addMessage(`Eu escolhi: ${category}`, 'user'); hideAllActionAreas(); showLoading(true); toggleChatInput(false); try { const response = await fetch('/send_message', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: category }) }); const data = await response.json(); showLoading(false); addMessage(data.reply, 'bot'); if (data.action === 'request_document') { fileUploadArea.style.display = 'block'; } else if (data.action === 'ask_category' || data.action === 'ask_category_again') { categorySelectionArea.style.display = 'block'; toggleChatInput(false); } else { toggleChatInput(true); } } catch (error) { showLoading(false); addMessage("Erro ao selecionar categoria.", 'bot'); categorySelectionArea.style.display = 'block'; toggleChatInput(false); } }
 
         async function sendMessage() {
             const messageText = userInput.value.trim();
             if (!messageText) return;
-
-            addMessage(messageText, 'user');
-            userInput.value = '';
-            showLoading(true);
-            toggleChatInput(false);
-            // Não esconde categorySelectionArea aqui, deixa o backend controlar via 'action'
-            // hideAllActionAreas();
+            addMessage(messageText, 'user'); userInput.value = '';
+            showLoading(true); toggleChatInput(false);
+            if (messageText.toLowerCase() !== "corrigir" && messageText.toLowerCase() !== "não, preciso corrigir") {
+                 categorySelectionArea.style.display = 'none';
+            }
 
             try {
-                const response = await fetch('/send_message', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: messageText })
-                });
+                const response = await fetch('/send_message', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: messageText }) });
                 const data = await response.json();
-                showLoading(false);
-                addMessage(data.reply, 'bot');
+                showLoading(false); addMessage(data.reply, 'bot');
 
-                // Esconde áreas de ação APÓS receber a resposta do bot
-                hideAllActionAreas();
+                // Lógica de UI baseada na ação retornada pelo backend
                 if (data.action === 'request_document') {
-                    fileUploadArea.style.display = 'block';
+                    hideAllActionAreas(); fileUploadArea.style.display = 'block'; toggleChatInput(false);
                 } else if (data.action === 'ask_category' || data.action === 'ask_category_again') {
-                    categorySelectionArea.style.display = 'block';
-                } else if (data.reply.includes("sua senha de atendimento é") || data.action === 'ticket_already_exists_today' || data.reply.toLowerCase().includes("já possui uma senha")) {
-                    startAutoResetTimer();
+                    hideAllActionAreas(); categorySelectionArea.style.display = 'block'; toggleChatInput(false);
+                } else if (data.action === 'manual_input_start' || data.reply.toLowerCase().includes("qual o seu nome completo?") || data.reply.toLowerCase().includes("qual o seu cpf?") || data.reply.toLowerCase().includes("qual a sua data de nascimento")) {
+                    hideAllActionAreas(); toggleChatInput(true); // Habilita para o usuário digitar
+                } else if (data.action === 'display_manual_confirmation') {
+                    hideAllActionAreas();
+                    // Os dados para display_manual_confirmation vêm do session['ocr_data'] que foi preenchido manualmente
+                    // O bot já deve ter perguntado "Está tudo correto? (Sim/Não)"
+                    // Vamos mostrar os dados na área de confirmação
+                    const ocrData = data.extracted_data; // O backend precisa enviar 'extracted_data' com os dados manuais
+                    if (ocrData) {
+                        let displayText = "";
+                        if (ocrData.nome) { displayText += `<div><strong>Nome:</strong> ${ocrData.nome}</div>`; } else { displayText += `<div><strong>Nome:</strong> Não fornecido</div>`; }
+                        if (ocrData.cpf) { displayText += `<div><strong>CPF:</strong> ${ocrData.cpf}</div>`; } else { displayText += `<div><strong>CPF:</strong> Não fornecido</div>`; }
+                        if (ocrData.data_nascimento) { displayText += `<div><strong>Nascimento:</strong> ${ocrData.data_nascimento}</div>`; } else { displayText += `<div><strong>Nascimento:</strong> Não fornecido</div>`; }
+                        if (ocrData.idade !== null && ocrData.idade !== undefined) { displayText += `<div><strong>Idade:</strong> ${ocrData.idade}</div>`; } else { displayText += `<div><strong>Idade:</strong> Não calculada</div>`; }
+                        extractedDataDisplay.innerHTML = displayText;
+                        confirmationArea.style.display = 'block';
+                    }
+                    toggleChatInput(true); // Habilita para "Sim" ou "Não"
+                } else if (data.action === 'proceed_to_confirm_data_route') {
+                    hideAllActionAreas();
+                    await proceedWithDataConfirmation(true);
+                } else if (data.action === 'reset_timer_10s' || data.reply.includes("sua senha de atendimento é") || data.action === 'ticket_already_exists_today' || data.reply.toLowerCase().includes("já possui uma senha")) {
+                    if(data.qr_code_url) displayQrCode(data.qr_code_url);
+                    startAutoResetTimer(10);
                     toggleChatInput(true);
                 } else {
                     toggleChatInput(true);
                 }
-            } catch (error) {
-                showLoading(false);
-                addMessage("Erro ao conectar com o servidor. Tente novamente.", 'bot');
-                console.error("Send message error:", error);
-                toggleChatInput(true);
-            }
+            } catch (error) { showLoading(false); addMessage("Erro ao conectar com o servidor.", 'bot'); toggleChatInput(true); }
         }
 
-        userInput.addEventListener('keypress', function(event) {
-            if (event.key === 'Enter' && !userInput.disabled) {
-                sendMessage();
-            }
-        });
+        userInput.addEventListener('keypress', function(event) { if (event.key === 'Enter' && !userInput.disabled) { sendMessage(); }});
 
         async function uploadDocument() {
             addMessage("Enviando documento...", "user");
             const fileInput = document.getElementById('document-file');
-            if (fileInput.files.length === 0) {
-                addMessage("Por favor, selecione um arquivo de imagem.", 'bot');
-                toggleChatInput(true);
-                fileUploadArea.style.display = 'block';
-                return;
-            }
-            const formData = new FormData();
-            formData.append('document', fileInput.files[0]);
-
-            showLoading(true);
-            hideAllActionAreas();
-
+            if (fileInput.files.length === 0) { addMessage("Por favor, selecione um arquivo.", 'bot'); toggleChatInput(true); fileUploadArea.style.display = 'block'; return; }
+            const formData = new FormData(); formData.append('document', fileInput.files[0]);
+            showLoading(true); hideAllActionAreas();
             try {
-                const response = await fetch('/upload_document', {
-                    method: 'POST',
-                    body: formData
-                });
+                const response = await fetch('/upload_document', { method: 'POST', body: formData });
                 const data = await response.json();
-                showLoading(false);
-
-                addMessage(data.bot_reply || "Processando...", 'bot');
-
-                if (response.ok && data.action !== 'request_document_again') {
+                showLoading(false); addMessage(data.bot_reply || "Processando...", 'bot');
+                if (response.ok && data.action !== 'request_document_again' && data.action !== 'manual_input_start') {
                     const ocrData = data.extracted_data;
                     let displayText = "";
-                    if (ocrData.nome) { displayText += `<div><strong>Nome:</strong> ${ocrData.nome}</div>`; }
-                    else { displayText += `<div><strong>Nome:</strong> Não encontrado</div>`; }
-                    if (ocrData.cpf) { displayText += `<div><strong>CPF:</strong> ${ocrData.cpf}</div>`; }
-                    else { displayText += `<div><strong>CPF:</strong> Não encontrado</div>`; }
-                    if (ocrData.rg) { displayText += `<div><strong>RG:</strong> ${ocrData.rg}</div>`; }
-                    else { displayText += `<div><strong>RG:</strong> Não encontrado</div>`; }
-                    if (ocrData.cns) { displayText += `<div><strong>CNS:</strong> ${ocrData.cns}</div>`; }
-                    if (ocrData.data_nascimento) { displayText += `<div><strong>Nascimento:</strong> ${ocrData.data_nascimento}</div>`; }
-                    if (ocrData.idade !== null && ocrData.idade !== undefined) { displayText += `<div><strong>Idade:</strong> ${ocrData.idade}</div>`; }
-
+                    if (ocrData.nome) { displayText += `<div><strong>Nome:</strong> ${ocrData.nome}</div>`; } else { displayText += `<div><strong>Nome:</strong> Não encontrado</div>`; }
+                    if (ocrData.cpf) { displayText += `<div><strong>CPF:</strong> ${ocrData.cpf}</div>`; } else { displayText += `<div><strong>CPF:</strong> Não encontrado</div>`; }
+                    if (ocrData.data_nascimento) { displayText += `<div><strong>Nascimento:</strong> ${ocrData.data_nascimento}</div>`; } else { displayText += `<div><strong>Nascimento:</strong> Não encontrado</div>`; }
+                    if (ocrData.idade !== null && ocrData.idade !== undefined) { displayText += `<div><strong>Idade:</strong> ${ocrData.idade}</div>`; } else { displayText += `<div><strong>Idade:</strong> Não calculada</div>`; }
                     extractedDataDisplay.innerHTML = displayText;
                     confirmationArea.style.display = 'block';
                 } else if (data.action === 'request_document_again') {
-                    fileUploadArea.style.display = 'block';
-                    toggleChatInput(false);
+                    fileUploadArea.style.display = 'block'; toggleChatInput(false);
+                } else if (data.action === 'manual_input_start') { // OCR falhou, bot iniciou input manual
+                    toggleChatInput(true); // Habilita para o usuário digitar o nome
                 } else {
-                    addMessage(data.error || "Erro ao processar documento.", 'bot');
-                    toggleChatInput(true);
+                    addMessage(data.error || "Erro ao processar documento.", 'bot'); toggleChatInput(true);
                 }
-            } catch (error) {
-                showLoading(false);
-                addMessage("Erro ao enviar documento. Tente novamente.", 'bot');
-                toggleChatInput(true);
-                console.error("Upload error:", error);
-            }
+            } catch (error) { showLoading(false); addMessage("Erro ao enviar documento.", 'bot'); toggleChatInput(true); }
         }
-
-        async function proceedWithDataConfirmation() {
-            addMessage("Sim, os dados estão corretos.", "user"); // Mensagem do usuário
-            hideAllActionAreas();
-            showLoading(true);
-            toggleChatInput(false);
-
+        async function proceedWithDataConfirmation(isManualData = false) {
+            if (!isManualData) { addMessage("Sim, os dados estão corretos.", "user");  }
+            hideAllActionAreas(); showLoading(true); toggleChatInput(false);
             try {
-                // A rota /confirm_data não precisa de um body se os dados já estão na sessão
-                // e não há correção manual pelo usuário nesta etapa.
-                const response = await fetch('/confirm_data', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                    // body: JSON.stringify({ confirmed: true }) // Não é estritamente necessário se o backend não usa
-                });
+                const response = await fetch('/confirm_data', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
                 const data = await response.json();
-                showLoading(false);
-                addMessage(data.bot_reply || `Seu acesso foi registrado! Sua senha é: ${data.senha}`, 'bot');
-
-                startAutoResetTimer();
-
-            } catch (error) {
-                showLoading(false);
-                addMessage("Erro ao conectar para confirmar dados.", 'bot');
-                console.error("Confirm data error:", error);
-            }
+                showLoading(false); addMessage(data.bot_reply || `Acesso registrado! Senha: ${data.senha}`, 'bot');
+                if (data.qr_code_url) { displayQrCode(data.qr_code_url); }
+                startAutoResetTimer(10);
+            } catch (error) { showLoading(false); addMessage("Erro ao confirmar dados.", 'bot');}
             toggleChatInput(true);
         }
-
         function tellBotToCorrectData() {
-            addMessage("Não, preciso corrigir os dados.", "user"); // Mensagem do usuário
+            addMessage("Não, preciso corrigir.", "user");
             hideAllActionAreas();
-            // Envia uma mensagem para o backend indicando que precisa corrigir
-            // O backend (rota /send_message) vai chamar o Gemini para guiar a correção ou pedir nova foto.
-            sendMessageInternal("Os dados não estão corretos, preciso de ajuda para corrigi-los.");
+            sendMessageInternal("corrigir"); // Envia "corrigir" para o backend
         }
-
         async function sendMessageInternal(messageText) {
-            showLoading(true);
-            toggleChatInput(false);
-             try {
-                const response = await fetch('/send_message', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: messageText })
-                });
+            showLoading(true); toggleChatInput(false);
+            categorySelectionArea.style.display = 'none';
+            try {
+                const response = await fetch('/send_message', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: messageText }) });
                 const data = await response.json();
-                showLoading(false);
-                addMessage(data.reply, 'bot');
-
-                hideAllActionAreas(); // Esconde áreas após a resposta do bot
+                showLoading(false); addMessage(data.reply, 'bot');
+                hideAllActionAreas();
                 if (data.action === 'request_document' || data.action === 'request_document_again') {
-                    fileUploadArea.style.display = 'block';
-                    toggleChatInput(false);
+                    fileUploadArea.style.display = 'block'; toggleChatInput(false);
                 } else if (data.action === 'ask_category' || data.action === 'ask_category_again') {
-                    categorySelectionArea.style.display = 'block';
-                    toggleChatInput(false);
-                } else {
+                    categorySelectionArea.style.display = 'block'; toggleChatInput(false);
+                } else if (data.action === 'manual_input_start' || data.reply.toLowerCase().includes("qual o seu nome completo?") || data.reply.toLowerCase().includes("qual o seu cpf?") || data.reply.toLowerCase().includes("qual a sua data de nascimento")) {
                     toggleChatInput(true);
+                } else if (data.action === 'display_manual_confirmation') {
+                     // O backend já enviou os dados formatados na 'reply' do bot
+                     // Apenas habilita o input para "Sim" ou "Não"
+                     toggleChatInput(true);
+                } else if (data.action === 'reset_timer_10s' || data.reply.includes("sua senha de atendimento é") || data.action === 'ticket_already_exists_today' || data.reply.toLowerCase().includes("já possui uma senha")) {
+                    if(data.qr_code_url) displayQrCode(data.qr_code_url);
+                    startAutoResetTimer(10); toggleChatInput(true);
                 }
-            } catch (error) {
-                showLoading(false);
-                addMessage("Erro ao conectar com o servidor. Tente novamente.", 'bot');
-                console.error("Send message internal error:", error);
-                toggleChatInput(true);
-            }
+                 else { toggleChatInput(true); }
+            } catch (error) { showLoading(false); addMessage("Erro ao conectar.", 'bot'); toggleChatInput(true); }
         }
     </script>
 </body>

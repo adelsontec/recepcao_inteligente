@@ -1,0 +1,93 @@
+2025-05-17 17:22:11,839 INFO: CuidarBot aplicação iniciada (modo não-debug). [in /home/servodb/recepcao_inteligente/app/__init__.py:58]
+2025-05-17 17:22:18,207 INFO: ROUTES_FINAL: Iniciando nova sessão de chat. [in /home/servodb/recepcao_inteligente/app/routes.py:38]
+2025-05-17 17:22:18,207 INFO: ROUTES_FINAL: /send_message: 'Exame', Cat: None [in /home/servodb/recepcao_inteligente/app/routes.py:74]
+2025-05-17 17:22:25,766 INFO: ROUTES_FINAL: ROTA /upload_document ACESSADA [in /home/servodb/recepcao_inteligente/app/routes.py:104]
+2025-05-17 17:22:26,321 INFO: ROUTES_FINAL: Dados OCR parseados: {'nome': 'ADELSON APARECIDO PAULINO GUIMARAES', 'cpf': None, 'data_nascimento': '17/12/1979', 'idade': 45, 'texto_completo': 'ADELSON APARECIDO PAULINO GUIMARAES\n\nDOC. IDENTIDADE / ÓRG. EMISSOR / UF\n6119979-9 SESP PR |\n\nCPF DATA NASCIMENTO — ,\n018.339. 579-46] 17/12/1979\n\nFILIAÇÃO\n\nEVA PAULINO GUIMARAES\n\nNe REGISTRA — VALIDADE 1º HABILITAÇÃO\n[ 01714929443 ) 23/11/2025 [16/03/2001\n\n'} [in /home/servodb/recepcao_inteligente/app/routes.py:140]
+2025-05-17 17:22:38,188 ERROR: Erro API Gemini: 
+  No API_KEY or ADC found. Please either:
+    - Set the `GOOGLE_API_KEY` environment variable.
+    - Manually pass the key with `genai.configure(api_key=my_api_key)`.
+    - Or set up Application Default Credentials, see https://ai.google.dev/gemini-api/docs/oauth for more information. [in /home/servodb/recepcao_inteligente/app/chatbot_utils.py:71]
+Traceback (most recent call last):
+  File "/home/servodb/recepcao_inteligente/app/chatbot_utils.py", line 55, in get_bot_response
+    response = chat_session.send_message(user_message)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/generativeai/generative_models.py", line 578, in send_message
+    response = self.model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/generativeai/generative_models.py", line 317, in generate_content
+    self._client = client.get_default_generative_client()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/generativeai/client.py", line 360, in get_default_generative_client
+    return _client_manager.get_default_client("generative")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/generativeai/client.py", line 289, in get_default_client
+    client = self.make_client(name)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/generativeai/client.py", line 249, in make_client
+    raise e
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/generativeai/client.py", line 241, in make_client
+    client = cls(**self.client_config)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/ai/generativelanguage_v1beta/services/generative_service/client.py", line 667, in __init__
+    self._transport = transport_init(
+                      ^^^^^^^^^^^^^^^
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/ai/generativelanguage_v1beta/services/generative_service/transports/grpc.py", line 235, in __init__
+    super().__init__(
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/ai/generativelanguage_v1beta/services/generative_service/transports/base.py", line 100, in __init__
+    credentials, _ = google.auth.default(
+                     ^^^^^^^^^^^^^^^^^^^^
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/auth/_default.py", line 685, in default
+    raise exceptions.DefaultCredentialsError(_CLOUD_SDK_MISSING_CREDENTIALS)
+google.auth.exceptions.DefaultCredentialsError: 
+  No API_KEY or ADC found. Please either:
+    - Set the `GOOGLE_API_KEY` environment variable.
+    - Manually pass the key with `genai.configure(api_key=my_api_key)`.
+    - Or set up Application Default Credentials, see https://ai.google.dev/gemini-api/docs/oauth for more information.
+2025-05-17 17:22:48,679 INFO: ROUTES_FINAL: /send_message: 'Os dados não estão corretos. Por favor, me peça para enviar uma nova foto do documento.', Cat: EXAME [in /home/servodb/recepcao_inteligente/app/routes.py:74]
+2025-05-17 17:23:00,462 ERROR: Erro API Gemini: 
+  No API_KEY or ADC found. Please either:
+    - Set the `GOOGLE_API_KEY` environment variable.
+    - Manually pass the key with `genai.configure(api_key=my_api_key)`.
+    - Or set up Application Default Credentials, see https://ai.google.dev/gemini-api/docs/oauth for more information. [in /home/servodb/recepcao_inteligente/app/chatbot_utils.py:71]
+Traceback (most recent call last):
+  File "/home/servodb/recepcao_inteligente/app/chatbot_utils.py", line 55, in get_bot_response
+    response = chat_session.send_message(user_message)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/generativeai/generative_models.py", line 578, in send_message
+    response = self.model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/generativeai/generative_models.py", line 317, in generate_content
+    self._client = client.get_default_generative_client()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/generativeai/client.py", line 360, in get_default_generative_client
+    return _client_manager.get_default_client("generative")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/generativeai/client.py", line 289, in get_default_client
+    client = self.make_client(name)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/generativeai/client.py", line 249, in make_client
+    raise e
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/generativeai/client.py", line 241, in make_client
+    client = cls(**self.client_config)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/ai/generativelanguage_v1beta/services/generative_service/client.py", line 667, in __init__
+    self._transport = transport_init(
+                      ^^^^^^^^^^^^^^^
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/ai/generativelanguage_v1beta/services/generative_service/transports/grpc.py", line 235, in __init__
+    super().__init__(
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/ai/generativelanguage_v1beta/services/generative_service/transports/base.py", line 100, in __init__
+    credentials, _ = google.auth.default(
+                     ^^^^^^^^^^^^^^^^^^^^
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/auth/_default.py", line 685, in default
+    raise exceptions.DefaultCredentialsError(_CLOUD_SDK_MISSING_CREDENTIALS)
+google.auth.exceptions.DefaultCredentialsError: 
+  No API_KEY or ADC found. Please either:
+    - Set the `GOOGLE_API_KEY` environment variable.
+    - Manually pass the key with `genai.configure(api_key=my_api_key)`.
+    - Or set up Application Default Credentials, see https://ai.google.dev/gemini-api/docs/oauth for more information.
+2025-05-17 17:24:00,698 INFO: CuidarBot aplicação iniciada (modo não-debug). [in /home/servodb/recepcao_inteligente/app/__init__.py:58]
+2025-05-17 17:24:05,795 INFO: ROUTES_FINAL: Iniciando nova sessão de chat. [in /home/servodb/recepcao_inteligente/app/routes.py:38]
+2025-05-17 17:24:05,795 INFO: ROUTES_FINAL: /send_message: 'Exame', Cat: None [in /home/servodb/recepcao_inteligente/app/routes.py:74]
+2025-05-17 17:24:10,565 INFO: ROUTES_FINAL: ROTA /upload_document ACESSADA [in /home/servodb/recepcao_inteligente/app/routes.py:104]
+2025-05-17 17:24:10,957 INFO: ROUTES_FINAL: Dados OCR parseados: {'nome': 'ADELSON APARECIDO PAULINO GUIMARAES', 'cpf': None, 'data_nascimento': '17/12/1979', 'idade': 45, 'texto_completo': 'ADELSON APARECIDO PAULINO GUIMARAES\n\nDOC. IDENTIDADE / ÓRG. EMISSOR / UF\n6119979-9 SESP PR |\n\nCPF DATA NASCIMENTO — ,\n018.339. 579-46] 17/12/1979\n\nFILIAÇÃO\n\nEVA PAULINO GUIMARAES\n\nNe REGISTRA — VALIDADE 1º HABILITAÇÃO\n[ 01714929443 ) 23/11/2025 [16/03/2001\n\n'} [in /home/servodb/recepcao_inteligente/app/routes.py:140]

@@ -1,0 +1,41 @@
+2025-05-17 17:28:04,462 ERROR: Erro API Gemini: 
+  No API_KEY or ADC found. Please either:
+    - Set the `GOOGLE_API_KEY` environment variable.
+    - Manually pass the key with `genai.configure(api_key=my_api_key)`.
+    - Or set up Application Default Credentials, see https://ai.google.dev/gemini-api/docs/oauth for more information. [in /home/servodb/recepcao_inteligente/app/chatbot_utils.py:71]
+Traceback (most recent call last):
+  File "/home/servodb/recepcao_inteligente/app/chatbot_utils.py", line 55, in get_bot_response
+    response = chat_session.send_message(user_message)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/generativeai/generative_models.py", line 578, in send_message
+    response = self.model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/generativeai/generative_models.py", line 317, in generate_content
+    self._client = client.get_default_generative_client()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/generativeai/client.py", line 360, in get_default_generative_client
+    return _client_manager.get_default_client("generative")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/generativeai/client.py", line 289, in get_default_client
+    client = self.make_client(name)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/generativeai/client.py", line 249, in make_client
+    raise e
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/generativeai/client.py", line 241, in make_client
+    client = cls(**self.client_config)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/ai/generativelanguage_v1beta/services/generative_service/client.py", line 667, in __init__
+    self._transport = transport_init(
+                      ^^^^^^^^^^^^^^^
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/ai/generativelanguage_v1beta/services/generative_service/transports/grpc.py", line 235, in __init__
+    super().__init__(
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/ai/generativelanguage_v1beta/services/generative_service/transports/base.py", line 100, in __init__
+    credentials, _ = google.auth.default(
+                     ^^^^^^^^^^^^^^^^^^^^
+  File "/home/servodb/recepcao_inteligente/venv/lib/python3.11/site-packages/google/auth/_default.py", line 685, in default
+    raise exceptions.DefaultCredentialsError(_CLOUD_SDK_MISSING_CREDENTIALS)
+google.auth.exceptions.DefaultCredentialsError: 
+  No API_KEY or ADC found. Please either:
+    - Set the `GOOGLE_API_KEY` environment variable.
+    - Manually pass the key with `genai.configure(api_key=my_api_key)`.
+    - Or set up Application Default Credentials, see https://ai.google.dev/gemini-api/docs/oauth for more information.
