@@ -13,6 +13,16 @@ Utilizando um chatbot conversacional com a IA **Google Gemini**, o CuidarBot int
 
 O objetivo principal é reduzir o tempo de espera em filas físicas e fornecer à equipe do posto de saúde uma lista organizada dos pacientes com seus dados já parcialmente validados, agilizando o fluxo de atendimento.
 
+## 🖼️ Telas do Sistema
+
+Aqui estão algumas telas demonstrando o CuidarBot em funcionamento:
+
+**Tela de Interação com o Usuário (Chatbot):**
+![Tela do Chat do CuidarBot](./app/templates/imagens/ChatBot.png)
+
+**Tela Administrativa (Visão Geral das Filas):**
+![Tela Administrativa do CuidarBot](./app/templates/imagens/admin.png)
+
 ## ✨ Funcionalidades Principais Atuais
 
 * **Chatbot Amigável**: Guiado pela IA Google Gemini para uma interação natural.
