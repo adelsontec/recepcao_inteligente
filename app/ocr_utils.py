@@ -1,3 +1,4 @@
+# Versão final do projeto CuidarBot para Imersão IA Alura+Google
 import pytesseract
 from PIL import Image
 import re

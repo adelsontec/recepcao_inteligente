@@ -1,3 +1,4 @@
+# Versão final do projeto CuidarBot para Imersão IA Alura+Google
 # CuidarBot - Recepção Inteligente para Postos de Saúde
 
 

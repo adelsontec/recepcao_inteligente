@@ -1,3 +1,4 @@
+# Versão final do projeto CuidarBot para Imersão IA Alura+Google
 # ~/recepcao_inteligente/app/routes.py
 from flask import (
     Blueprint, render_template, request, jsonify,

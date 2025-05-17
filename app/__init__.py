@@ -1,3 +1,4 @@
+# Versão final do projeto CuidarBot para Imersão IA Alura+Google
 # app/__init__.py
 from flask import Flask
 from dotenv import load_dotenv
@@ -16,7 +17,7 @@ def create_app():
 
     # Configurações da Aplicação
     # SECRET_KEY é crucial para sessões e mensagens flash
-    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'uma_chave_secreta_padrao_muito_forte_e_aleatoria')
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
     app.config['UPLOAD_FOLDER'] = os.path.join(app.static_folder, 'uploads') # Salva em app/static/uploads/
 
     # Garante que a pasta de uploads exista

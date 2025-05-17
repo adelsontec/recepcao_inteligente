@@ -1,3 +1,4 @@
+# Versão final do projeto CuidarBot para Imersão IA Alura+Google
 # run.py
 from app import create_app
 

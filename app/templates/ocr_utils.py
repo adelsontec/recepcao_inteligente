@@ -1,3 +1,4 @@
+# Versão final do projeto CuidarBot para Imersão IA Alura+Google
 # app/ocr_utils.py
 print("--- OCR_UTILS.PY FOI IMPORTADO E ESTA LINHA FOI EXECUTADA ---")
 

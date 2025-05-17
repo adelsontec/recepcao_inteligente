@@ -1,3 +1,4 @@
+# Versão final do projeto CuidarBot para Imersão IA Alura+Google
 # app/chatbot_utils.py
 import google.generativeai as genai
 import os

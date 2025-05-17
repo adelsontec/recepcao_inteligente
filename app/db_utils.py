@@ -1,3 +1,4 @@
+# Versão final do projeto CuidarBot para Imersão IA Alura+Google
 # app/db_utils.py
 import sqlite3
 from datetime import date
