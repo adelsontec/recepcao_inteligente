@@ -1,6 +1,7 @@
 # Ambiente Virtual Python
 venv/
 /venv/
+venv_lume/
 *.py[cod]
 __pycache__/
 .Python
