@@ -23,3 +23,4 @@ app/static/uploads/
 .vscode/
 .idea/
 *.DS_Store
+lume_acompanhante_adk/venv_lume/
