@@ -10,11 +10,11 @@ CREATE TABLE visitantes (
     cpf TEXT,
     -- rg TEXT, -- Removido
     -- cns TEXT, -- Removido
-    foto_path TEXT,
+    foto_path TEXT, -- Mantido para o caso de OCR bem-sucedido
     categoria_atendimento TEXT NOT NULL,
     senha_formatada TEXT NOT NULL,
-    data_nascimento TEXT, -- Manter para calcular idade
-    idade INTEGER,        -- Manter para exibir
+    data_nascimento TEXT,
+    idade INTEGER,
     horario_entrada TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

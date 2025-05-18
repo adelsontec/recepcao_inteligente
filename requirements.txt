@@ -7,3 +7,4 @@ google-generativeai
 python-dotenv
 requests # Pywhatkit pode precisar, ou para outras chamadas HTTP
 # pywhatkit # Se for tentar usar, mas lembre-se dos desafios
+qrcode[pil]

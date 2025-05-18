@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lume - Acompanhante de Fila</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        #chatbox-lume { display: flex; flex-direction: column; height: 90vh; max-height: 600px; }
+        #conversation-lume { scrollbar-width: thin; }
+        .user-message { background-color: #DCF8C6; color: #111b21; }
+        .bot-message { background-color: #f0f0f0; color: #1F2937; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-400 to-purple-500 text-gray-800 flex justify-center items-center min-h-screen p-4">
+    <div id="chatbox-lume" class="w-full max-w-md bg-white p-5 sm:p-6 rounded-2xl shadow-2xl">
+        <header class="mb-4 text-center">
+            <h2 class="text-2xl sm:text-3xl font-bold text-purple-600">Lume</h2>
+            <p class="text-sm text-gray-500">Sua companhia enquanto espera</p>
+        </header>
+        <div id="conversation-lume" class="flex-grow overflow-y-auto mb-4 p-1">
+            </div>
+        <div id="loading-lume" class="my-3 text-center" style="display: none;"><p class="text-sm text-gray-600">Lume está a pensar...</p></div>
+        <div id="input-area-lume" class="flex mt-auto pt-3 border-t border-gray-200">
+            <input type="text" id="user-input-lume" placeholder="Converse com a Lume..." class="flex-grow p-3 border border-gray-300 rounded-l-xl focus:ring-2 focus:ring-purple-500 outline-none text-sm">
+            <button onclick="sendMessageLume()" id="send-button-lume" class="p-3 border-none bg-purple-600 hover:bg-purple-700 text-white rounded-r-xl font-semibold text-sm">Enviar</button>
+        </div>
+    </div>
+    <script>
+        const conversationDivLume = document.getElementById('conversation-lume');
+        const userInputLume = document.getElementById('user-input-lume');
+        const sendButtonLume = document.getElementById('send-button-lume');
+        const loadingDivLume = document.getElementById('loading-lume');
+
+        function addMessageLume(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', 'py-2', 'px-4', 'mb-3', 'rounded-lg', 'clear-both', 'max-w-[85%]');
+            if (sender === 'user') {
+                messageDiv.classList.add('user-message', 'float-right', 'ml-auto');
+            } else {
+                messageDiv.classList.add('bot-message', 'float-left', 'mr-auto');
+            }
+            messageDiv.innerHTML = text.replace(/\n/g, '<br>');
+            conversationDivLume.appendChild(messageDiv);
+            const clearer = document.createElement('div'); clearer.style.clear = 'both';
+            conversationDivLume.appendChild(clearer);
+            conversationDivLume.scrollTop = conversationDivLume.scrollHeight;
+        }
+        function showLoadingLume(show) { loadingDivLume.style.display = show ? 'block' : 'none';}
+        function toggleChatInputLume(enable) { userInputLume.disabled = !enable; sendButtonLume.disabled = !enable; if(enable){ userInputLume.focus(); }}
+
+        async function sendMessageToServerLume(messageText) {
+            showLoadingLume(true); toggleChatInputLume(false);
+            try {
+                const response = await fetch("{{ url_for('lume_chat.send_message_lume') }}", {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: messageText })
+                });
+                const data = await response.json();
+                showLoadingLume(false); addMessageLume(data.reply, 'bot');
+            } catch (error) {
+                showLoadingLume(false); addMessageLume("Erro de conexão com a Lume.", 'bot');
+            }
+            toggleChatInputLume(true);
+        }
+
+        async function sendMessageLume() {
+            const messageText = userInputLume.value.trim();
+            if (!messageText) return;
+            addMessageLume(messageText, 'user');
+            userInputLume.value = '';
+            await sendMessageToServerLume(messageText);
+        }
+        userInputLume.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter' && !userInputLume.disabled) sendMessageLume();
+        });
+
+        // Envia uma saudação inicial para Lume começar a conversa
+        document.addEventListener('DOMContentLoaded', () => {
+            const initialFlaskMessage = "{{ initial_bot_message | safe }}"; // Pega a mensagem do Flask
+            if (initialFlaskMessage && initialFlaskMessage !== "None" && initialFlaskMessage.includes("diga 'Olá'")) {
+                 addMessageLume(initialFlaskMessage, 'bot'); // Mostra a instrução do Flask
+            } else if (initialFlaskMessage && initialFlaskMessage !== "None") {
+                // Se o Flask já retornou a primeira pergunta da Lume
+                addMessageLume(initialFlaskMessage, 'bot');
+            } else {
+                // Fallback se não houver mensagem do Flask
+                sendMessageToServerLume("Olá");
+            }
+            toggleChatInputLume(true);
+            userInputLume.focus();
+        });
+    </script>
+</body>
+</html>
