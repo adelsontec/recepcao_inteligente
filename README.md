@@ -37,7 +37,7 @@ Além disso, possui integração com a **Lume**, uma agente virtual que acolhe e
 ## 📸 Telas do Sistema
 
 - Chatbot do CuidarBot ![ChatBot](./app/templates/imagens/ChatBot.png)
-- Chatbot Lume ![Lume](./app/templates/imagens/lume.png).
+- Chatbot Lume ![Lume](./app/templates/imagens/lume.png)
 - Painel Administrativo ![Admin](./app/templates/imagens/admin.png)
 
 ## ⚙️ Como Executar Localmente
